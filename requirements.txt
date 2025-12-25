@@ -3,3 +3,4 @@ uvicorn
 httpx
 pydantic<2
 python-dotenv
+openai

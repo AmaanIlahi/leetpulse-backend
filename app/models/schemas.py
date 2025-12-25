@@ -2,32 +2,45 @@ from pydantic import BaseModel
 from typing import List, Dict
 
 
-class DifficultySplit(BaseModel):
-    easy: int
-    medium: int
-    hard: int
+# ---------- Progress ----------
 
-
-class ProfileResponse(BaseModel):
-    username: str
-    total_solved: int
-    acceptance_rate: float
-    difficulty_split: DifficultySplit
-
-
-class TopicStat(BaseModel):
-    topic: str
+class DifficultyProgress(BaseModel):
+    difficulty: str
     solved: int
-    accuracy: float
+    failed: int
+    untouched: int
+    percentile: float
 
+
+class ProgressResponse(BaseModel):
+    easy: DifficultyProgress
+    medium: DifficultyProgress
+    hard: DifficultyProgress
+
+
+# ---------- Skills / Topics ----------
+
+class TopicSkill(BaseModel):
+    name: str
+    solved: int
+    level: str  # fundamental | intermediate | advanced
+
+
+class SkillResponse(BaseModel):
+    topics: List[TopicSkill]
+
+
+# ---------- Signals ----------
 
 class Signals(BaseModel):
-    weak_topics: List[str]
     strong_topics: List[str]
-    consistency_score: float
+    weak_topics: List[str]
 
+
+# ---------- Final Analyze Response ----------
 
 class AnalyzeResponse(BaseModel):
-    profile: ProfileResponse
-    topic_stats: List[TopicStat]
+    username: str
+    progress: ProgressResponse
+    skills: SkillResponse
     signals: Signals
