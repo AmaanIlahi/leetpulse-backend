@@ -1,0 +1,58 @@
+{
+  "meta": {
+    "display_name": "Meta",
+    "focus_topics": ["Dynamic Programming", "BFS", "DFS", "Array", "String", "Tree", "Backtracking", "Sliding Window", "Two Pointers"],
+    "focus_patterns": ["DP on sequences", "BFS/DFS on graphs", "Two pointers", "Prefix sums", "Recursion with memoization"],
+    "difficulty_distribution": { "easy": 10, "medium": 60, "hard": 30 },
+    "notes": "Meta interviews emphasize optimal solutions and clean code under time pressure. Expect multiple rounds of medium/hard problems with follow-up questions about trade-offs and alternative approaches."
+  },
+  "google": {
+    "display_name": "Google",
+    "focus_topics": ["Dynamic Programming", "BFS", "DFS", "Shortest Path", "Binary Search", "Tree", "String", "Math", "Segment Tree", "Trie"],
+    "focus_patterns": ["DP with state compression", "Dijkstra/BFS shortest path", "Binary search on answer", "Divide and conquer", "Trie operations"],
+    "difficulty_distribution": { "easy": 5, "medium": 50, "hard": 45 },
+    "notes": "Google values correctness and scalability above all — interviewers push for O(n log n) or better solutions. Strong emphasis on explaining your reasoning clearly as you code and discussing space/time trade-offs."
+  },
+  "amazon": {
+    "display_name": "Amazon",
+    "focus_topics": ["Array", "Hash Table", "Tree", "BFS", "DFS", "Dynamic Programming", "Sorting", "Linked List", "Heap (Priority Queue)"],
+    "focus_patterns": ["HashMap frequency counting", "BFS level-order traversal", "Sliding Window", "In-place array manipulation", "Top-K using heaps"],
+    "difficulty_distribution": { "easy": 20, "medium": 60, "hard": 20 },
+    "notes": "Amazon interviews blend coding with leadership principle discussions. Problems often have practical system-design flavors — expect questions around data structures for large-scale lookups and real-world constraints."
+  },
+  "microsoft": {
+    "display_name": "Microsoft",
+    "focus_topics": ["Array", "String", "Tree", "Linked List", "Dynamic Programming", "BFS", "DFS", "Topological Sort", "Binary Search"],
+    "focus_patterns": ["In-order/pre-order tree traversal", "Two Pointers on sorted arrays", "DP on grids", "Cycle detection in linked lists", "Backtracking"],
+    "difficulty_distribution": { "easy": 25, "medium": 55, "hard": 20 },
+    "notes": "Microsoft focuses on well-structured, readable code and thorough testing. Interviewers value candidates who think out loud, handle edge cases explicitly, and can iterate from a brute-force to an optimized solution."
+  },
+  "apple": {
+    "display_name": "Apple",
+    "focus_topics": ["Array", "String", "Hash Table", "Tree", "BFS", "DFS", "Dynamic Programming", "Recursion", "Two Pointers"],
+    "focus_patterns": ["Hash Table-based lookups", "DFS/BFS tree traversal", "String parsing and manipulation", "Greedy interval scheduling", "Divide and conquer"],
+    "difficulty_distribution": { "easy": 20, "medium": 60, "hard": 20 },
+    "notes": "Apple interviews emphasize clean, production-quality code with an eye for performance. Expect deep dives into your solutions — be ready to analyze complexity, discuss edge cases, and refactor on the fly."
+  },
+  "netflix": {
+    "display_name": "Netflix",
+    "focus_topics": ["Dynamic Programming", "BFS", "DFS", "Topological Sort", "Array", "Hash Table", "Sorting", "String", "Union-Find"],
+    "focus_patterns": ["DP on intervals", "Bipartite graph checking", "Merge intervals", "LRU/LFU cache design", "Topological Sort"],
+    "difficulty_distribution": { "easy": 10, "medium": 55, "hard": 35 },
+    "notes": "Netflix targets senior engineers with high autonomy — interviews lean toward complex, open-ended problems and system design. Expect questions that test depth of knowledge in algorithms applied to streaming and large-scale data."
+  },
+  "uber": {
+    "display_name": "Uber",
+    "focus_topics": ["BFS", "DFS", "Shortest Path", "Dynamic Programming", "Array", "Sorting", "Math", "Hash Table", "Union-Find"],
+    "focus_patterns": ["Dijkstra and A* pathfinding", "DP on DAGs", "Sliding Window on time series", "Geospatial grid mapping", "Union-Find connectivity"],
+    "difficulty_distribution": { "easy": 15, "medium": 60, "hard": 25 },
+    "notes": "Uber interviews frequently involve geo-spatial and routing problems reflecting their core business. Strong emphasis on graph algorithms, optimization under constraints, and real-world problem framing."
+  },
+  "bloomberg": {
+    "display_name": "Bloomberg",
+    "focus_topics": ["Array", "String", "Hash Table", "Dynamic Programming", "Tree", "Sorting", "Monotonic Stack", "Two Pointers"],
+    "focus_patterns": ["String parsing and validation", "Hash Table aggregation", "Interval merging", "Monotonic Stack", "Iterator design pattern"],
+    "difficulty_distribution": { "easy": 30, "medium": 55, "hard": 15 },
+    "notes": "Bloomberg interviews reflect their finance domain — expect string/data-parsing heavy problems and real-world system design around market data. Communication and structured problem decomposition are valued highly."
+  }
+}

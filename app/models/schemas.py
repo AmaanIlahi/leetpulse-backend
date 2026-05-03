@@ -1,46 +1,57 @@
 from pydantic import BaseModel
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 
-# ---------- Progress ----------
-
-class DifficultyProgress(BaseModel):
-    difficulty: str
+class DifficultyStats(BaseModel):
     solved: int
-    failed: int
-    untouched: int
-    percentile: float
+    attempted: int
+    total: int
 
 
-class ProgressResponse(BaseModel):
-    easy: DifficultyProgress
-    medium: DifficultyProgress
-    hard: DifficultyProgress
-
-
-# ---------- Skills / Topics ----------
-
-class TopicSkill(BaseModel):
+class TopicStat(BaseModel):
     name: str
     solved: int
-    level: str  # fundamental | intermediate | advanced
+    category: str  # fundamental | intermediate | advanced
 
 
-class SkillResponse(BaseModel):
-    topics: List[TopicSkill]
+class SubmissionEntry(BaseModel):
+    title: str
+    slug: str
+    timestamp: int
+    status: str
+    language: str
 
 
-# ---------- Signals ----------
+class ContestInfo(BaseModel):
+    rating: float
+    global_rank: int
+    attended: int
+    top_percentage: float
+    history: List
 
-class Signals(BaseModel):
-    strong_topics: List[str]
-    weak_topics: List[str]
+
+class ConsistencyInfo(BaseModel):
+    current_streak: int
+    longest_streak: int
+    active_days_30: int
+    active_days_90: int
+    consistency_score: float
+    submission_calendar: Dict[str, int]  # epoch string → submission count
 
 
-# ---------- Final Analyze Response ----------
+class LanguageStat(BaseModel):
+    language: str
+    solved: int
 
-class AnalyzeResponse(BaseModel):
+
+class AnalyticsResponse(BaseModel):
     username: str
-    progress: ProgressResponse
-    skills: SkillResponse
-    signals: Signals
+    difficulty: Dict[str, DifficultyStats]   # keys: easy, medium, hard
+    topics: List[TopicStat]
+    strong_topics: List[TopicStat]
+    weak_topics: List[TopicStat]
+    consistency: ConsistencyInfo
+    languages: List[LanguageStat]
+    recent_submissions: List[SubmissionEntry]
+    contest: Optional[ContestInfo]
+    cached_at: Optional[str] = None

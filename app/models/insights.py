@@ -1,20 +1,18 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 
-class FocusTopic(BaseModel):
-    topic: str
-    reason: str
-
-
-class StudyDay(BaseModel):
-    day: str
-    task: str
+class WeekPlan(BaseModel):
+    week: int
+    theme: str
+    topics: List[str]
+    patterns: List[str]
+    example_problems: List[str]
 
 
 class InsightsResponse(BaseModel):
     summary: str
     strengths: List[str]
-    weaknesses: List[str]
-    focus_topics: List[FocusTopic]
-    study_plan: List[StudyDay]
+    improvements: List[str]
+    study_plan: List[WeekPlan]
+    target_company: Optional[str] = None

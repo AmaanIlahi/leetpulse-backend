@@ -1,23 +1,47 @@
 import time
-from typing import Dict, Tuple
+from datetime import datetime, timezone
+from typing import Any, Dict, Optional, Tuple
 
-# username -> (response, timestamp)
-INSIGHTS_CACHE: Dict[str, Tuple[dict, float]] = {}
+_CACHE: Dict[str, Tuple[Any, float]] = {}
 
 CACHE_TTL_SECONDS = 60 * 60 * 24  # 24 hours
 
 
-def get_cached_insights(username: str):
-    if username not in INSIGHTS_CACHE:
+def get_cached(key: str) -> Any:
+    entry = _CACHE.get(key)
+    if entry is None:
         return None
-
-    cached_response, timestamp = INSIGHTS_CACHE[username]
+    value, timestamp = entry
     if time.time() - timestamp > CACHE_TTL_SECONDS:
-        del INSIGHTS_CACHE[username]
+        del _CACHE[key]
         return None
+    return value
 
-    return cached_response
+
+def get_cache_metadata(key: str) -> Optional[str]:
+    """Return the cached_at ISO timestamp for a key, or None if missing/expired."""
+    entry = _CACHE.get(key)
+    if entry is None:
+        return None
+    value, timestamp = entry
+    if time.time() - timestamp > CACHE_TTL_SECONDS:
+        del _CACHE[key]
+        return None
+    return datetime.fromtimestamp(timestamp, tz=timezone.utc).isoformat()
 
 
-def set_cached_insights(username: str, insights: dict):
-    INSIGHTS_CACHE[username] = (insights, time.time())
+def set_cached(key: str, value: Any) -> None:
+    _CACHE[key] = (value, time.time())
+
+
+def clear_cache() -> int:
+    count = len(_CACHE)
+    _CACHE.clear()
+    return count
+
+
+def clear_user_cache(username: str) -> list:
+    keys = [k for k in list(_CACHE.keys()) if username.lower() in k.lower()]
+    for k in keys:
+        del _CACHE[k]
+    return keys
