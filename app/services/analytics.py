@@ -1,5 +1,4 @@
 import json
-import logging
 from datetime import datetime, timezone, timedelta
 from typing import Any, Optional
 
@@ -12,8 +11,9 @@ from app.models.schemas import (
     SubmissionEntry,
     TopicStat,
 )
+from app.utils.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -213,13 +213,13 @@ def _build_contest(raw: dict) -> Optional[ContestInfo]:
 def compute_analytics(raw: dict) -> AnalyticsResponse:
     username = raw.get("username", "")
 
-    logger.info("raw keys: %s", [k for k in raw if k != "username"])
-    logger.info("profile keys: %s", list(raw.get("profile", {}).keys()))
-    logger.info("skill keys: %s", list(raw.get("skill", {}).keys()))
-    logger.info("calendar keys: %s", list(raw.get("calendar", {}).keys()))
-    logger.info("language keys: %s", list(raw.get("language", {}).keys()))
-    logger.info("ac_submissions keys: %s", list(raw.get("ac_submissions", {}).keys()))
-    logger.info("progress keys: %s", list(raw.get("progress", {}).keys()))
+    logger.debug("raw keys: %s", [k for k in raw if k != "username"])
+    logger.debug("profile keys: %s", list(raw.get("profile", {}).keys()))
+    logger.debug("skill keys: %s", list(raw.get("skill", {}).keys()))
+    logger.debug("calendar keys: %s", list(raw.get("calendar", {}).keys()))
+    logger.debug("language keys: %s", list(raw.get("language", {}).keys()))
+    logger.debug("ac_submissions keys: %s", list(raw.get("ac_submissions", {}).keys()))
+    logger.debug("progress keys: %s", list(raw.get("progress", {}).keys()))
 
     difficulty             = _build_difficulty(raw)
     topics, strong, weak   = _build_topics(raw)

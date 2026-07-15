@@ -17,7 +17,11 @@ primary_region = 'iad'
   auto_stop_machines = 'stop'
   min_machines_running = 0
 
+[[mounts]]
+  source = "leetpulse_chroma"
+  destination = "/data/chroma"
+
 [[vm]]
-  memory = '256mb'
+  memory = '512mb'
+  cpu_kind = 'shared'
   cpus = 1
-  memory_mb = 256

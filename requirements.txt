@@ -5,3 +5,8 @@ pydantic
 python-dotenv
 openai
 posthog
+sentry-sdk[fastapi]
+upstash-redis
+chromadb
+apscheduler
+beautifulsoup4
