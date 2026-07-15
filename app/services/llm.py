@@ -1,15 +1,18 @@
 import json
-import logging
 import os
+import time
 from pathlib import Path
 from typing import Optional
 
+import sentry_sdk
+from fastapi import HTTPException
 from openai import AsyncOpenAI
 
 from app.models.insights import InsightsResponse
 from app.models.schemas import AnalyticsResponse
+from app.utils.logger import get_logger, log_event
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -23,7 +26,11 @@ with _PROFILES_PATH.open() as _f:
 # Prompt builder
 # ---------------------------------------------------------------------------
 
-def _build_prompt(analytics: AnalyticsResponse, target_company: Optional[str]) -> str:
+def _build_prompt(
+    analytics: AnalyticsResponse,
+    target_company: Optional[str],
+    rag_context: Optional[str] = None,
+) -> str:
     d = analytics.difficulty
     easy   = d.get("easy",   None)
     medium = d.get("medium", None)
@@ -110,6 +117,27 @@ def _build_prompt(analytics: AnalyticsResponse, target_company: Optional[str]) -
         else:
             logger.warning("Unknown target_company key: %r", target_company)
 
+    rag_section = ""
+    if rag_context:
+        company_name = target_company or "the target company"
+        rag_section = f"""
+
+=== GROUNDED PROBLEM RECOMMENDATIONS ===
+{rag_context}
+
+CRITICAL: For example_problems in the study plan, you MUST use ONLY problems from the \
+list above. Do not suggest any problem not in this list. These are real problems verified \
+to be asked at {company_name}. Using problems outside this list is a hallucination."""
+
+    example_problems_rule = (
+        "- example_problems: exactly 3 problems. Use ONLY well-known problems from the "
+        "Blind 75 or NeetCode 150 lists — do NOT invent problems. "
+        'Append difficulty in brackets: "Word Break [Medium]", "Merge K Sorted Lists [Hard]"'
+        if not rag_context else
+        "- example_problems: exactly 3 problems. Choose ONLY from the GROUNDED PROBLEM "
+        "RECOMMENDATIONS section above. Do not use any problem not in that list."
+    )
+
     return f"""You are a senior software engineer and LeetCode coach writing a brutally honest, \
 data-driven performance report for a specific student. Every sentence must reference \
 actual numbers from the student's data. Generic advice is not acceptable.
@@ -133,7 +161,7 @@ TOPIC BREAKDOWN
 {topics_block}
 
 ACTIVITY & CONSISTENCY
-{streak_block}
+{streak_block}{rag_section}
 
 === OUTPUT RULES ===
 
@@ -188,9 +216,7 @@ For each week provide:
 - topics: 2-3 specific DSA topic names to study that week
 - patterns: 2-3 specific coding patterns to practice (e.g. "sliding window", \
 "two-pointer on sorted array", "DP with state compression")
-- example_problems: exactly 3 problems. Use ONLY well-known problems from the \
-Blind 75 or NeetCode 150 lists — do NOT invent problems. \
-Append difficulty in brackets: "Word Break [Medium]", "Merge K Sorted Lists [Hard]"
+{example_problems_rule}
 
 Return JSON matching exactly this shape:
 {{
@@ -217,26 +243,63 @@ Return JSON matching exactly this shape:
 async def generate_llm_insights(
     analytics: AnalyticsResponse,
     target_company: Optional[str] = None,
+    rag_context: Optional[str] = None,
 ) -> InsightsResponse:
-    prompt = _build_prompt(analytics, target_company)
+    prompt = _build_prompt(analytics, target_company, rag_context)
 
-    response = await client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.3,
-        max_tokens=2000,
-        response_format={"type": "json_object"},
+    log_event(
+        logger, "info", "llm_call_start",
+        username=analytics.username,
+        target_company=target_company,
+        prompt_chars=len(prompt),
     )
+    t0 = time.monotonic()
+
+    try:
+        response = await client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+            max_tokens=2000,
+            response_format={"type": "json_object"},
+        )
+    except Exception as e:
+        sentry_sdk.capture_exception(e)
+        log_event(
+            logger, "error", "llm_call_failed",
+            username=analytics.username,
+            target_company=target_company,
+            error=repr(e),
+        )
+        raise HTTPException(status_code=502, detail="LLM service unavailable")
 
     content = response.choices[0].message.content
-    logger.info(
-        "LLM response for %s (company=%r): %d chars",
-        analytics.username,
-        target_company,
-        len(content),
+    usage = response.usage
+
+    log_event(
+        logger, "info", "llm_call_complete",
+        username=analytics.username,
+        target_company=target_company,
+        latency_ms=round((time.monotonic() - t0) * 1000),
+        response_chars=len(content),
+        prompt_tokens=usage.prompt_tokens if usage else None,
+        completion_tokens=usage.completion_tokens if usage else None,
+        total_tokens=usage.total_tokens if usage else None,
+        rag_grounded=rag_context is not None,
     )
 
-    data = json.loads(content)
+    try:
+        data = json.loads(content)
+    except Exception as e:
+        sentry_sdk.capture_exception(e)
+        log_event(
+            logger, "error", "llm_parse_failed",
+            username=analytics.username,
+            target_company=target_company,
+            raw_content=content,
+            error=repr(e),
+        )
+        raise HTTPException(status_code=500, detail="Failed to parse LLM response")
 
     return InsightsResponse(
         summary=data["summary"],
@@ -244,4 +307,5 @@ async def generate_llm_insights(
         improvements=data["improvements"],
         study_plan=data["study_plan"],
         target_company=target_company,
+        rag_grounded=rag_context is not None,
     )

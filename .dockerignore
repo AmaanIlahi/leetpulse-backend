@@ -6,3 +6,4 @@ __pycache__/
 .pytest_cache/
 *.pyo
 *.pyd
+chroma_db/

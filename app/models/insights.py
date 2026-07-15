@@ -16,3 +16,4 @@ class InsightsResponse(BaseModel):
     improvements: List[str]
     study_plan: List[WeekPlan]
     target_company: Optional[str] = None
+    rag_grounded: bool = False

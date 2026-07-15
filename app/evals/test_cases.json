@@ -1,0 +1,19 @@
+{
+  "test_cases": [
+    {
+      "username": "priyankaaa_99",
+      "skill_level": "beginner",
+      "companies": ["Amazon", "Microsoft"]
+    },
+    {
+      "username": "The_Unmasked_Dive",
+      "skill_level": "intermediate",
+      "companies": ["Google", "Meta"]
+    },
+    {
+      "username": "Indomitus",
+      "skill_level": "expert",
+      "companies": ["Google", "Meta"]
+    }
+  ]
+}
